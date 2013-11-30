@@ -1,0 +1,28 @@
+defaults: &defaults
+  host: 127.0.0.1
+  port: 27017
+
+development:
+  <<: *defaults
+  database: gmaps_zurb-development
+  host: localhost
+  logger: mongo
+
+test: &test
+  <<: *defaults
+  database: gmaps_zurb-test
+  host: localhost
+
+cucumber:
+  <<: *test
+
+qa:
+  <<: *defaults
+  database: gmaps_zurb-qa
+  host: localhost
+
+production:
+  <<: *defaults
+  database: gmaps_zurb-development
+  host: localhost
+

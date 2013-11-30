@@ -14,6 +14,8 @@
 //= require jquery_ujs
 // Note: Foundation 5 won't work with turbolinks
 //= require foundation
+//= require underscore
+//= require gmaps/google
 //= require_tree .
 $(function() {
   $(document).foundation();

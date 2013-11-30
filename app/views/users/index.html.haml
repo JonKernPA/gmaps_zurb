@@ -1,0 +1,39 @@
+%script{src: "//maps.google.com/maps/api/js?v=3.13&sensor=false&libraries=geometry", type: "text/javascript"}
+%script{src: "//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.14/src/markerclusterer_packed.js", type: "text/javascript"}
+
+%table
+  %tr
+    %th Latitude
+    %th Longitude
+    %th Address
+    %th Description
+    %th Title
+    %th
+    %th
+    %th
+
+  - @users.each do |user|
+    %tr
+      %td= user.latitude
+      %td= user.longitude
+      %td= user.address
+      %td= user.description
+      %td= user.title
+      %td= link_to 'Show', user
+      %td= link_to 'Edit', edit_user_path(user)
+      %td= link_to 'Destroy', user, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New User', new_user_path
+
+%div{style: "width: 800px;"}
+  #map{style: "width: 800px; height: 400px;"}%h1 Listing users
+
+:javascript
+  handler = Gmaps.build('Google');
+  handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+    markers = handler.addMarkers(#{raw @hash.to_json});
+    handler.bounds.extendWith(markers);
+    handler.fitMapToBounds();
+  });
