@@ -12,7 +12,7 @@ This application requires:
 * Rails version 4.0.1
 * [MongoDB](http://www.mongodb.org/)
 * [MongoMapper](https://github.com/mongomapper/mongomapper)
-* "Plain Vanilla" UI
+* [Zurb Foundation 5.0](http://foundation.zurb.com/)
 * [gmaps4rails](https://github.com/apneadiving/Google-Maps-for-Rails)
 
 ## Companion Video
@@ -29,10 +29,10 @@ I created these steps so that I could be sure on the proper steps to get gmaps w
 Bootstrap the rails app inside an RVM setup ([RVM](http://rvm.io/) is optional)
 
 ```
-$ mkdir gmaps_mongo
-$ cd gmaps_mongo/
-$ rvm use ruby-2.0.0@gmaps_mongo --ruby-version --create
-Using /Users/jon/.rvm/gems/ruby-2.0.0-p247 with gemset gmaps_mongo
+$ mkdir gmaps_zurb
+$ cd gmaps_zurb/
+$ rvm use ruby-2.0.0@gmaps_zurb --ruby-version --create
+Using /Users/jon/.rvm/gems/ruby-2.0.0-p247 with gemset gmaps_zurb
 $ gem install rails
 ```
 
@@ -57,7 +57,7 @@ How will you connect to MongoDB?
 	1) Mongoid <-- Choose this even though we will use MongoMapper
 
 Template engine?
-	1) ERB <-- Even though I want to use Haml, let's stay consistent with Gmaps4Rails demo app
+	1) Haml
 
 Unit testing?
 	2)  RSpec
@@ -72,7 +72,6 @@ Fixture replacement?
 	2)  Factory Girl  <-- Though I also like Fabrication
 
 Front-end framework?
-	1)  None <-- Choose this
 	2)  Zurb Foundation 5.0
 
 Add support for sending email?
@@ -90,14 +89,13 @@ Use a form builder gem?
 Install a starter app?
 	1)  None
 
-Use application.yml file for environment variables? (y/n) y
 Set a robots.txt file to ban spiders? (y/n) y
 Create a GitHub repository? (y/n) y
 Use application.yml file for environment variables? (y/n) y
 Reduce assets logger noise during development? (y/n) y
 Improve error reporting with 'better_errors' during development? (y/n) y
 
-Okay to drop all existing databases named gmaps_mongo? 'No' will abort immediately! (y/n) y
+Okay to drop all existing databases named gmaps_zurb? 'No' will abort immediately! (y/n) y
 ```
 
 Gemfile, add `mongo_mapper`
@@ -136,13 +134,13 @@ defaults: &defaults
 
 development:
   <<: *defaults
-  database: gmaps_mongo-development
+  database: gmaps_zurb-development
   host: localhost
   logger: mongo
 
 test: &test
   <<: *defaults
-  database: gmaps_mongo-test
+  database: gmaps_zurb-test
   host: localhost
 
 cucumber:
@@ -150,12 +148,12 @@ cucumber:
 
 qa:
   <<: *defaults
-  database: gmaps_mongo-qa
+  database: gmaps_zurb-qa
   host: localhost
 
 production:
   <<: *defaults
-  database: gmaps_mongo-development
+  database: gmaps_zurb-development
   host: localhost
 ```
 
@@ -324,9 +322,18 @@ rails s
 
 ### Add Map Div
 
-Inside `users/index.html.erb`
+#### Haml
 
-Add at the bottom of page:
+Inside `users/index.html.haml`, add the following at the bottom of page:
+
+```erb
+%div{style: "width: 800px;"}
+  #map{style: "width: 800px; height: 400px;"}%h1 Listing users
+```
+
+#### ERB
+
+Inside `users/index.html.erb`, add the following at the bottom of page:
 
 ```erb
 <div style='width: 800px;'>
@@ -335,6 +342,16 @@ Add at the bottom of page:
 ```
 
 ### Add Map Javascript
+
+#### Haml
+
+Put the following at the top of the `users/index.html.haml` page
+
+```javascript
+%script{src: "//maps.google.com/maps/api/js?v=3.13&sensor=false&libraries=geometry", type: "text/javascript"}
+%script{src: "//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.14/src/markerclusterer_packed.js", type: "text/javascript"}
+```
+#### ERB
 
 Put the following at the top of the `users/index.html.erb` page
 
@@ -374,6 +391,31 @@ Add underscore and gmaps to `app/assets/javascripts/application.js`
 Add the map script to the bottom of the view, below the div.
 
 Note: this has dummy marker data at a lat/lon of 0,0 :-)
+
+#### Haml
+
+```javascript
+:javascript
+  handler = Gmaps.build('Google');
+  handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+    markers = handler.addMarkers([
+      {
+        "lat": 0,
+        "lng": 0,
+        "picture": {
+          "url": "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13028-64.png",
+          "width":  36,
+          "height": 36
+        },
+        "infowindow": "hello!"
+      }
+    ]);
+    handler.bounds.extendWith(markers);
+    handler.fitMapToBounds();
+  });
+```
+
+#### ERB
 
 ```javascript
 <script type="text/javascript">
@@ -421,6 +463,13 @@ Add to the controller the generation of the mapping datapoints from the user rec
 
 Replace the dummy marker data in the view script with data from the model:
 
+#### Haml
+```javascript
+markers = handler.addMarkers(#{raw @hash.to_json});
+```
+
+#### ERB
+
 ```javascript
 markers = handler.addMarkers(<%=raw @hash.to_json %>);
 ```
@@ -447,7 +496,7 @@ Recipes:
 ["apps4", "controllers", "core", "email", "extras", "frontend", "gems", "git", "init", "models", "prelaunch", "railsapps", "readme", "routes", "saas", "setup", "testing", "views"]
 
 Preferences:
-{:git=>true, :apps4=>"none", :dev_webserver=>"thin", :prod_webserver=>"thin", :database=>"mongodb", :orm=>"mongoid", :templates=>"erb", :unit_test=>"rspec", :integration=>"cucumber", :continuous_testing=>"none", :fixtures=>"factory_girl", :frontend=>"none", :email=>"none", :authentication=>"none", :authorization=>"none", :form_builder=>"none", :starter_app=>"none", :quiet_assets=>true, :local_env_file=>true, :better_errors=>true, :ban_spiders=>true, :github=>true}
+{:git=>true, :apps4=>"none", :dev_webserver=>"thin", :prod_webserver=>"thin", :database=>"mongodb", :orm=>"mongoid", :templates=>"haml", :unit_test=>"rspec", :integration=>"cucumber", :continuous_testing=>"none", :fixtures=>"factory_girl", :frontend=>"foundation5", :email=>"none", :authentication=>"none", :authorization=>"none", :form_builder=>"none", :starter_app=>"none", :quiet_assets=>true, :local_env_file=>true, :better_errors=>true, :ban_spiders=>true, :github=>true}
 
 ## Ruby on Rails
 
@@ -483,4 +532,4 @@ All the great gem, rvm, and rails authors
 
 ## License
 
-Free to a good home
+MIT License
