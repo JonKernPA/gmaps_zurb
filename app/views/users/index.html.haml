@@ -1,6 +1,8 @@
 %script{src: "//maps.google.com/maps/api/js?v=3.13&sensor=false&libraries=geometry", type: "text/javascript"}
 %script{src: "//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.14/src/markerclusterer_packed.js", type: "text/javascript"}
 
+%h1 Listing users
+
 %table
   %tr
     %th Latitude
@@ -28,7 +30,7 @@
 = link_to 'New User', new_user_path
 
 %div{style: "width: 800px;"}
-  #map{style: "width: 800px; height: 400px;"}%h1 Listing users
+  #map{style: "width: 800px; height: 400px;"}
 
 :javascript
   handler = Gmaps.build('Google');
