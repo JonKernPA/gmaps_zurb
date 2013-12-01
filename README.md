@@ -344,6 +344,29 @@ Inside `users/index.html.erb`, add the following at the bottom of page:
 
 ### Add Map Javascript
 
+It is critical when using Foundation (and anything, really) to call GMaps only after the script containing it is loaded.
+
+#### Haml
+
+Benjamin Roth mentioned:
+
+> Explanation is you put `= javascript_include_tag "application"` at the bottom of your html
+> to meet Foundation's expectations. So every previous javascript will fail.
+ > Solution: you have to put your scripts after the files defining them.
+>
+> So AFTER `= javascript_include_tag "application"`, add:
+>
+> `= yield :scripts`
+>
+> And then whenever you need in a view:
+>
+> ```haml
+> - content_for :scripts do
+>   :javascript
+>     // Gmaps can be called safely here...
+> ```
+
+
 #### Haml
 
 Put the following at the top of the `users/index.html.haml` page
@@ -396,48 +419,50 @@ Note: this has dummy marker data at a lat/lon of 0,0 :-)
 #### Haml
 
 ```javascript
-:javascript
-  handler = Gmaps.build('Google');
-  handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
-    markers = handler.addMarkers([
-      {
-        "lat": 0,
-        "lng": 0,
-        "picture": {
-          "url": "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13028-64.png",
-          "width":  36,
-          "height": 36
-        },
-        "infowindow": "hello!"
-      }
-    ]);
-    handler.bounds.extendWith(markers);
-    handler.fitMapToBounds();
-  });
+- content_for :scripts do
+  :javascript
+    handler = Gmaps.build('Google');
+    handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+      markers = handler.addMarkers([
+        {
+          "lat": 0,
+          "lng": 0,
+          "picture": {
+            "url": "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13028-64.png",
+            "width":  36,
+            "height": 36
+          },
+          "infowindow": "hello!"
+        }
+      ]);
+      handler.bounds.extendWith(markers);
+      handler.fitMapToBounds();
+    });
 ```
 
 #### ERB
 
 ```javascript
-<script type="text/javascript">
-  handler = Gmaps.build('Google');
-  handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
-    markers = handler.addMarkers([
-      {
-        "lat": 0,
-        "lng": 0,
-        "picture": {
-          "url": "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13028-64.png",
-          "width":  36,
-          "height": 36
-        },
-        "infowindow": "hello!"
-      }
-    ]);
-    handler.bounds.extendWith(markers);
-    handler.fitMapToBounds();
-  });
-</script>
+content_for :scripts do
+  <script type="text/javascript">
+    handler = Gmaps.build('Google');
+    handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+      markers = handler.addMarkers([
+        {
+          "lat": 0,
+          "lng": 0,
+          "picture": {
+            "url": "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13028-64.png",
+            "width":  36,
+            "height": 36
+          },
+          "infowindow": "hello!"
+        }
+      ]);
+      handler.bounds.extendWith(markers);
+      handler.fitMapToBounds();
+    });
+  </script>
 ```
 
 ### Assert: Map Should be Visible
