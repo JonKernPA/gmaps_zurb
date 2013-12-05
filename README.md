@@ -366,6 +366,16 @@ Benjamin Roth mentioned:
 >     // Gmaps can be called safely here...
 > ```
 
+### Layout
+
+In the `views\layout\application.html.haml`
+
+#### Haml
+
+```javascript
+= javascript_include_tag "application"
+= yield :scripts
+```
 
 #### Haml
 
